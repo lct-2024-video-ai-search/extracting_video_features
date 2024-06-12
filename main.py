@@ -18,8 +18,15 @@ from clear_text import remove_punctuation
 
 # описание приходящих объектов
 class Objects(BaseModel):
-    vido_url: Union[str, None] = None
-    vido_desc: Union[str, None] = None
+    vido_url: Union[str] = None
+    vido_desc: Union[str] = None
+
+# описание возвращаемых объектов объектов
+class DescriptionRequest(BaseModel):
+    video_url: str
+    video_desc: str
+    video_movement_desc: str
+    speech_desc: str
 
 
 # задание констант
@@ -42,31 +49,27 @@ blip = BLIP(device=device)
 extract_speech= ExtractSpeech(device=device_1)
 
 
-
-print(blip.process_video(save_path))
-print('#########')
-print(extract_speech.extract_speech(save_path))
-
-
-
-@app.post("/api/get_descriptions")
+@app.post("/api/get_descriptions", response_model=DescriptionRequest)
 def get_descriptions(objects: Objects):
-    logging.info(f"Началось предсказывание есть ли на фото инфографика")
+    logging.info(f"Началось обработка")
     save_path = "video_temp.mp4"
     video_url = objects.vido_url
-    vido_desc = objects.vido_desc
+    video_desc = objects.vido_desc
     _ = download_video(video_url, save_path)
     # получаю описания
+    logging.info(f"Создает описание видео")
     video_movement_desc = blip.process_video(save_path)
+    logging.info(f"Создает описание речи")
     speech_desc = extract_speech.extract_speech(save_path)
     # удаляю лишние символы
-    vido_desc = remove_punctuation(vido_desc)
+    video_desc = remove_punctuation(video_desc)
     video_movement_desc = remove_punctuation(video_movement_desc)
     speech_desc = remove_punctuation(speech_desc)
 
     return JSONResponse(
         content={
-            "vido_desc": vido_desc,
+            "video_url": video_url,
+            "video_desc": video_desc,
             "video_movement_desc": video_movement_desc,
             "speech_desc": speech_desc,
         },
