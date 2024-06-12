@@ -1,7 +1,14 @@
 import logging
 import torch
+import cv2
+import numpy as np
+import re
+from PIL import Image
+from torchvision import transforms
+from torchvision.transforms.functional import InterpolationMode
 from models.blip import blip_decoder
-# from transformers import MarianMTModel, MarianTokenizer
+from collections import OrderedDict
+from transformers import MarianMTModel, MarianTokenizer
 
 
 logging.basicConfig(level=logging.INFO)
@@ -15,8 +22,8 @@ class BLIP:
         self.model = blip_decoder(pretrained=model_path, image_size=image_size, vit='base').to(self.device)
         self.model.eval()
         logging.info(f"Закончилась загрузка BLIP")
-        # self.model_translate = MarianMTModel.from_pretrained('Helsinki-NLP/opus-mt-en-ru').to(self.device)
-        # self.tokenizer = MarianTokenizer.from_pretrained('Helsinki-NLP/opus-mt-en-ru')
+        self.model_translate = MarianMTModel.from_pretrained('Helsinki-NLP/opus-mt-en-ru').to(self.device)
+        self.tokenizer = MarianTokenizer.from_pretrained('Helsinki-NLP/opus-mt-en-ru')
 
     def generate_description(self, image, translator="google"):
         transform = transforms.Compose([
@@ -29,7 +36,7 @@ class BLIP:
             caption = self.model.generate(image, sample=True, num_beams=3, max_length=50, min_length=10)
 
         inputs = self.tokenizer(caption[0], return_tensors="pt")
-        translated_tokens = self.model_translate.generate(**inputs.to(device))
+        translated_tokens = self.model_translate.generate(**inputs.to(self.device))
         translated_text = self.tokenizer.decode(translated_tokens[0], skip_special_tokens=True)
 
         return translated_text

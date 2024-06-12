@@ -16,6 +16,7 @@
 .idea/**/contentModel.xml
 *.pth
 *.mp4
+*.wav
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
