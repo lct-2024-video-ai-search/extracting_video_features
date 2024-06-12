@@ -11,14 +11,17 @@ stop_hashteg = [
     '#boobs',
     '#бьюти',
     '#грудь',
-    '#as,,'
+    '#ass,'
     '#попа',
     '#girls',
     '#pussy',
-    '#bigass'
+    '#bigass',
+    '#bigbooty',
+    '#ass',
+    '#попа',
 ]
 
 def replace_stop_hashtags(description):
-    for hashtag in stop_hashteg:
-        description = re.sub(re.escape(hashtag), '', description, flags=re.IGNORECASE)
+    for w in stop_hashteg:
+        description = description.replace(w, '')
     return description
