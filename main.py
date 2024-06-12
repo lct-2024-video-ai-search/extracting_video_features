@@ -13,7 +13,7 @@ from desc_video import BLIP
 
 from voice_desc import ExtractSpeech
 
-from clear_text import remove_punctuation
+from clear_text import remove_punctuation, replace_stop_hashtags
 
 
 # описание приходящих объектов
@@ -27,7 +27,6 @@ class DescriptionRequest(BaseModel):
     video_desc: str
     video_movement_desc: str
     speech_desc: str
-
 
 # задание констант
 app = FastAPI()
@@ -62,6 +61,7 @@ def get_descriptions(objects: Objects):
     logging.info(f"Создает описание речи")
     speech_desc = extract_speech.extract_speech(save_path)
     # удаляю лишние символы
+    video_desc = replace_stop_hashtags(video_desc)
     video_desc = remove_punctuation(video_desc)
     video_movement_desc = remove_punctuation(video_movement_desc)
     speech_desc = remove_punctuation(speech_desc)

@@ -12,9 +12,13 @@ logging.basicConfig(level=logging.INFO)
 class ExtractSpeech:
     def __init__(self, device):
         self.device = device
+        logging.info(f"Началась загрузка desc_audio")
         self.model = Wav2Vec2ForCTC.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-russian").to(self.device)
         self.processor = Wav2Vec2Processor.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-russian")
+        logging.info(f"Закончилась загрузка desc_audio")
+        logging.info(f"Началась загрузка словаря")
         self.nlp = spacy.load('ru_core_news_md')
+        logging.info(f"Закончилась загрузка словаря")
 
     
     def is_russian_text(self, text):
@@ -48,6 +52,10 @@ class ExtractSpeech:
         if not self.is_meaningful_text(text):
             logging.debug(f"Text '{text}' is not meaningful.")
             return False
+        all_text = text.split(' ')
+        for t in all_text:
+            if len(t) > 15:
+                return False
         return True
         
         
@@ -88,4 +96,4 @@ class ExtractSpeech:
         if meaning_flg:
             return transcription[0]
         else:
-            return 
+            return ' '

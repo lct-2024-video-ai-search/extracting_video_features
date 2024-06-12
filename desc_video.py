@@ -25,7 +25,7 @@ class BLIP:
         self.model_translate = MarianMTModel.from_pretrained('Helsinki-NLP/opus-mt-en-ru').to(self.device)
         self.tokenizer = MarianTokenizer.from_pretrained('Helsinki-NLP/opus-mt-en-ru')
 
-    def generate_description(self, image, translator="google"):
+    def generate_description(self, image):
         transform = transforms.Compose([
             transforms.Resize((self.image_size, self.image_size), interpolation=InterpolationMode.BICUBIC),
             transforms.ToTensor(),
@@ -50,10 +50,8 @@ class BLIP:
         text = re.sub(r'\b(\w+\s+){1,}\b', lambda m: ' '.join(OrderedDict.fromkeys(m.group(0).split())), text)
         return text.lower()
 
-    def process_video(self, video_path, frame_interval=48, translator="google"):
+    def process_video(self, video_path, frame_interval=48):
         video_capture = cv2.VideoCapture(video_path)
-        frame_count = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
-        fps = int(video_capture.get(cv2.CAP_PROP_FPS))
 
         descriptions = np.array([])
         frame_number = 0
@@ -65,7 +63,7 @@ class BLIP:
                 break
             if frame_number % frame_interval == 0:
                 image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-                description = self.generate_description(image, translator=translator)
+                description = self.generate_description(image)
                 descriptions = np.append(descriptions, description)
             frame_number += 1
 
