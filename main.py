@@ -18,8 +18,8 @@ from clear_text import remove_punctuation, replace_stop_hashtags
 
 # описание приходящих объектов
 class Objects(BaseModel):
-    vido_url: Union[str] = None
-    vido_desc: Union[str] = None
+    video_url: Union[str] = None
+    video_desc: Union[str] = None
 
 # описание возвращаемых объектов объектов
 class DescriptionRequest(BaseModel):
@@ -52,8 +52,8 @@ extract_speech= ExtractSpeech(device=device_1)
 def get_descriptions(objects: Objects):
     logging.info(f"Началось обработка")
     save_path = "video_temp.mp4"
-    video_url = objects.vido_url
-    video_desc = objects.vido_desc
+    video_url = objects.video_url
+    video_desc = objects.video_desc
     _ = download_video(video_url, save_path)
     # получаю описания
     logging.info(f"Создает описание видео")

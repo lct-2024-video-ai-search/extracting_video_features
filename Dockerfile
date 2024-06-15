@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . /app
 RUN pip install transformers timm fairscale
 RUN pip install "uvicorn[standard]" fastapi
-# RUN wget -P /app https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_capfilt_large.pth
+RUN wget -P /app https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_capfilt_large.pth
 RUN pip install https://huggingface.co/spacy/ru_core_news_md/resolve/main/ru_core_news_md-any-py3-none-any.whl
 RUN pip install opencv-python moviepy soundfile spacy langdetect sentencepiece
 

@@ -1,7 +1,7 @@
 import moviepy.editor as mp
 import soundfile as sf
 import torch
-from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
+from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 import logging
 import spacy
 from langdetect import detect, LangDetectException
@@ -13,8 +13,8 @@ class ExtractSpeech:
     def __init__(self, device):
         self.device = device
         logging.info(f"Началась загрузка desc_audio")
-        self.model = Wav2Vec2ForCTC.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-russian").to(self.device)
-        self.processor = Wav2Vec2Processor.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-russian")
+        self.model = AutoModelForSpeechSeq2Seq.from_pretrained("openai/whisper-small").to(self.device)
+        self.processor = AutoProcessor.from_pretrained("openai/whisper-small")
         logging.info(f"Закончилась загрузка desc_audio")
         logging.info(f"Началась загрузка словаря")
         self.nlp = spacy.load('ru_core_news_md')
@@ -80,17 +80,13 @@ class ExtractSpeech:
             audio_input = audio_input.mean(axis=1)  # Convert stereo to mono if needed
 
         # Подготовка входных данных для модели
-        inputs = self.processor(audio_input, sampling_rate=16000, return_tensors="pt", padding=True).to(self.device)
+        input_features = self.processor(audio_input, sampling_rate=16000, return_tensors="pt").input_features.to(self.device)
 
-        # Прогон через модель и извлечение логитов
-        with torch.no_grad():
-            logits = self.model(inputs.input_values).logits
-
-        # Получение идентификаторов предсказанных символов
-        predicted_ids = torch.argmax(logits, dim=-1)
+        # Прогон через модель
+        predicted_ids = self.model.generate(input_features)
 
         # Расшифровка предсказанных символов в текст
-        transcription = self.processor.batch_decode(predicted_ids)
+        transcription = self.processor.batch_decode(predicted_ids, skip_special_tokens=True)
 
         meaning_flg = self.check_text(transcription[0])
         if meaning_flg:

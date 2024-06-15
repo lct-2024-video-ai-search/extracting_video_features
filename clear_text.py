@@ -19,6 +19,11 @@ stop_hashteg = [
     '#bigbooty',
     '#ass',
     '#попа',
+    '#hotgirl',
+    '#купальник',
+    '#купальник',
+    '#sexygirls',
+    
 ]
 
 def replace_stop_hashtags(description):
