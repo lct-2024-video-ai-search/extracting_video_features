@@ -5,6 +5,7 @@ from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 import logging
 import spacy
 from langdetect import detect, LangDetectException
+from delete_file import delete_file
 
 
 logging.basicConfig(level=logging.INFO)
@@ -89,6 +90,7 @@ class ExtractSpeech:
         transcription = self.processor.batch_decode(predicted_ids, skip_special_tokens=True)
 
         meaning_flg = self.check_text(transcription[0])
+        _ = delete_file(audio_path)
         if meaning_flg:
             return transcription[0]
         else:

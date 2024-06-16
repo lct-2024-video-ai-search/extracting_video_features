@@ -15,6 +15,8 @@ from voice_desc import ExtractSpeech
 
 from clear_text import remove_punctuation, replace_stop_hashtags
 
+from delete_file import delete_file
+
 
 # описание приходящих объектов
 class Objects(BaseModel):
@@ -65,6 +67,9 @@ def get_descriptions(objects: Objects):
     video_desc = remove_punctuation(video_desc)
     video_movement_desc = remove_punctuation(video_movement_desc)
     speech_desc = remove_punctuation(speech_desc)
+
+    # удалить видео
+    _ = delete_file(save_path)
 
     return JSONResponse(
         content={
