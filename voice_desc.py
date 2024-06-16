@@ -1,11 +1,13 @@
 import moviepy.editor as mp
 import soundfile as sf
-import torch
 from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 import logging
 import spacy
 from langdetect import detect, LangDetectException
 from delete_file import delete_file
+from fastapi import HTTPException
+import hashlib
+import datetime
 
 
 logging.basicConfig(level=logging.INFO)
@@ -62,11 +64,20 @@ class ExtractSpeech:
         
     def extract_speech(self, video_path):
         # Извлечение аудио с использованием moviepy
-        video = mp.VideoFileClip(video_path)
+        try:
+            video = mp.VideoFileClip(video_path)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Ошибка загрузки видео: {e}")
+        
         audio = video.audio
         if audio is None:
             return ' '
-        audio_path = "temp_audio.wav"
+        
+        # Генерируем название аудио
+        current_time = datetime.datetime.utcnow().isoformat()
+        hash_object = hashlib.md5(current_time.encode())
+        hash_str = hash_object.hexdigest()
+        audio_path = f"{hash_str}_{current_time}.wav"
         try:
             audio.write_audiofile(audio_path, fps=16000, verbose=False, logger=None)
         except Exception as e:

@@ -9,6 +9,7 @@ from torchvision.transforms.functional import InterpolationMode
 from blip.models.blip import blip_decoder
 from collections import OrderedDict
 from transformers import MarianMTModel, MarianTokenizer
+from fastapi import HTTPException
 
 
 logging.basicConfig(level=logging.INFO)
@@ -51,6 +52,7 @@ class BLIP:
         return text.lower()
 
     def process_video(self, video_path, frame_interval=48):
+        
         video_capture = cv2.VideoCapture(video_path)
 
         descriptions = np.array([])
@@ -58,6 +60,11 @@ class BLIP:
         success = True
 
         while success:
+            try:
+                video_capture.read()
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Ошибка загрузки видео: {e}")
+            
             success, frame = video_capture.read()
             if not success:
                 break

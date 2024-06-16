@@ -1,8 +1,10 @@
 import logging
+import hashlib
+import datetime
 
 from typing import Union
 from pydantic import BaseModel
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import torch
@@ -53,11 +55,19 @@ extract_speech= ExtractSpeech(device=device_1)
 @app.post("/api/get_descriptions", response_model=DescriptionRequest)
 def get_descriptions(objects: Objects):
     logging.info(f"Началось обработка")
-    save_path = "video_temp.mp4"
+
+    # Генерируем уникальное имя видео
+    current_time = datetime.datetime.utcnow().isoformat()
+    hash_object = hashlib.md5(current_time.encode())
+    hash_str = hash_object.hexdigest()
+    save_path = f"{hash_str}_{current_time}.mp4"
+
     video_url = objects.video_url
     video_desc = objects.video_desc
-    _ = download_video(video_url, save_path)
-    # получаю описания
+    download_correct_flg = download_video(video_url, save_path)
+    if not download_correct_flg:
+        raise HTTPException(status_code=400, detail="Ошибка загрузки видео")
+    
     logging.info(f"Создает описание видео")
     video_movement_desc = blip.process_video(save_path)
     logging.info(f"Создает описание речи")

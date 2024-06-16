@@ -13,5 +13,7 @@ def download_video(url, save_path):
                 file.write(chunk)
 
         logging.info(f"Видео успешно скачано и сохранено в {save_path}")
+        return True
     except requests.exceptions.RequestException as e:
         logging.info(f"Произошла ошибка при скачивании видео: {e}")
+        return False
