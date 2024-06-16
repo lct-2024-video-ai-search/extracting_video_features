@@ -6,7 +6,7 @@ import re
 from PIL import Image
 from torchvision import transforms
 from torchvision.transforms.functional import InterpolationMode
-from models.blip import blip_decoder
+from blip.models.blip import blip_decoder
 from collections import OrderedDict
 from transformers import MarianMTModel, MarianTokenizer
 
